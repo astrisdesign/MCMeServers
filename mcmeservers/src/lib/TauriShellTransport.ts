@@ -10,40 +10,49 @@ export class TauriShellTransport implements Transport {
     private command: string,
     private args: string[],
     private env: Record<string, string> = {}
-  ) {}
+  ) { }
 
   onclose?: () => void;
   onerror?: (error: Error) => void;
   onmessage?: (message: JSONRPCMessage) => void;
 
   async start(): Promise<void> {
-    const cmd = Command.create(this.command, this.args, { env: this.env });
+    console.log(`[TauriShellTransport] Starting command: '${this.command}'`);
+    console.log(`[TauriShellTransport] Args:`, this.args);
+    console.log(`[TauriShellTransport] Env:`, this.env);
 
-    // Handle stdout (server responses)
-    cmd.stdout.on("data", (chunk: string | Uint8Array) => {
-      // Tauri v2 might return string or Uint8Array depending on configuration, 
-      // but usually for text commands it is string.
-      // If it's bytes, we might need decoding, but assuming string for now as per docs for default shell.
-      const data = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
-      this.readBuffer += data;
-      this.processBuffer();
-    });
+    try {
+      const cmd = Command.create(this.command, this.args, { env: this.env });
 
-    // Handle stderr (logs)
-    cmd.stderr.on("data", (chunk: string | Uint8Array) => {
-      const line = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
-      console.error(`[MCP STDERR] ${line}`);
-    });
+      // Handle stdout (server responses)
+      cmd.stdout.on("data", (chunk: string | Uint8Array) => {
+        // Tauri v2 might return string or Uint8Array depending on configuration, 
+        // but usually for text commands it is string.
+        // If it's bytes, we might need decoding, but assuming string for now as per docs for default shell.
+        const data = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+        this.readBuffer += data;
+        this.processBuffer();
+      });
 
-    cmd.on("close", () => {
-      this.onclose?.();
-    });
+      // Handle stderr (logs)
+      cmd.stderr.on("data", (chunk: string | Uint8Array) => {
+        const line = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+        console.error(`[MCP STDERR] ${line}`);
+      });
 
-    cmd.on("error", (error) => {
-      this.onerror?.(new Error(String(error)));
-    });
+      cmd.on("close", () => {
+        this.onclose?.();
+      });
 
-    this.child = await cmd.spawn();
+      cmd.on("error", (error) => {
+        this.onerror?.(new Error(String(error)));
+      });
+
+      this.child = await cmd.spawn();
+    } catch (err) {
+      console.error("[TauriShellTransport] Error checking capabilities or spawning:", err);
+      throw err;
+    }
   }
 
   async send(message: JSONRPCMessage): Promise<void> {
