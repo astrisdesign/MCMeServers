@@ -1,21 +1,50 @@
 # MCMeServers
-Human interface for MCP servers, built with Tauri 2.0.
 
-## Implementation Details
+A premium human interface for **Model Context Protocol (MCP)** servers, built with **Tauri 2.0**, **React**, and **TypeScript**.
 
-This application uses the **Client in Frontend** architecture.
-1.  **Frontend**: React + TypeScript.
-2.  **SDK**: uses `@modelcontextprotocol/sdk` to handle the MCP protocol.
-3.  **Transport**: Custom `TauriShellTransport` uses Tauri's `shell` plugin to spawn Node.js processes.
+MCMeServers provides a seamless, visually stunning way to interact with your MCP servers. It handles tool discovery, dynamic form generation, and provides a persistent library for your favorite server configurations.
 
-### Architecture
-- **`src/lib/TauriShellTransport.ts`**: Adapts the MCP `Transport` interface to Tauri's `Command.spawn()`.
-- **`src/contexts/MCPClientContext.tsx`**: React Context that manages the single `Client` instance.
-- **`src/components/ServerConfig.tsx`**: UI to input the server path and connect.
-- **`src/components/ToolForm.tsx`**: Uses `@rjsf/core` to generate forms dynamically from tool schemas.
+## ✨ Features
 
-## Configuration
-To allow spawning `node`, we configured `src-tauri/capabilities/default.json`:
+- 🎨 **Premium UI**: JExTile-inspired "High-Visibility" design with a sleek dark mode and elegant animations.
+- 🛠️ **Dynamic Tool Discovery**: Automatically reads tool schemas from connected MCP servers and generates interactive forms.
+- 📂 **Server Library**: Save and manage your MCP server executable paths in a persistent browser-based library.
+- 🚀 **High Performance**: Built on Tauri 2.0 for a lightweight, secure, and fast desktop experience.
+- 🔄 **Real-time Interaction**: Execute tools and view results instantly with a dedicated terminal-style output pane.
+
+## 🏗️ Architecture
+
+- **Frontend**: React + TypeScript + Vite.
+- **Protocol**: Uses `@modelcontextprotocol/sdk` for standard compliance.
+- **Transport**: Custom `TauriShellTransport` adapts the MCP `Transport` interface to Tauri's `Command.spawn()` API, allowing the frontend to securely run local server executables.
+- **State Management**: React Context (`MCPClientContext`) handles the lifecycle of the connection and tools.
+- **Persistence**: `localStorage` is used for the Server Library, synchronized via a custom `useServerLibrary` hook.
+- **Form Generation**: `@rjsf/core` dynamically produces validated inputs from JSON Schema definitions.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- [PNPM](https://pnpm.io/) or NPM
+
+### Installation
+
+1.  Clone the repository.
+2.  Install dependencies:
+    ```bash
+    cd mcmeservers
+    npm install
+    ```
+3.  Launch the application in development mode:
+    ```bash
+    npm run tauri dev
+    ```
+
+## 🛠️ Configuration
+
+To allow the application to spawn local processes (like `node` or your custom MCP executables), the Tauri shell plugin is configured in `src-tauri/capabilities/default.json`.
 
 ```json
 {
@@ -36,25 +65,14 @@ To allow spawning `node`, we configured `src-tauri/capabilities/default.json`:
 }
 ```
 
-## Known Issues
+## 📖 Usage
 
-### Shell Scope Error
-**Error**: `Error: error deserializing scope: The shell scope 'command' value is required.`
+1.  **Connect**: Enter the absolute path to your MCP server executable (e.g., `C:\path\to\mcp-server\index.js` or an `.exe`).
+2.  **Save**: Once connected, click the **Save** icon to add the server to your library for quick access later.
+3.  **Browse**: Select a tool from the **Available Tools** sidebar.
+4.  **Execute**: Fill out the auto-generated parameters and click **Run Tool**.
+5.  **Analyze**: View the JSON output in the scrollable result pane.
 
-**Context**: This occurs when attempting to click "Connect" in the UI. The specific line in `TauriShellTransport.ts` calls `Command.create("node", ...)`. Even though we have added `"command": "node"` to the capability configuration (which was the fix for a similar error in other Tauri contexts), the error persists.
+---
 
-**Steps Taken**:
-1.  Verified `tauri-plugin-shell` is installed.
-2.  Added `shell:allow-spawn` to `capabilities/default.json`.
-3.  Updated the capability to explicitly include `"command": "node"` (initially it just had `"name": "node"`).
-4.  Restarted the dev server to ensure config reload.
-
-**Hypothesis**:
-- Tauri 2.0 Beta/RC capabilities schema might be strict or cached.
-- The `identifier` needs to be referenced in `tauri.conf.json` or `src-tauri/src/lib.rs` differently? (Currently it is included via `"permissions": ["shell:default"]` and the inline capability).
-- Re-running `tauri dev` might be required after *every* capability change.
-
-## Usage
-1.  Run `npm run tauri dev`.
-2.  Enter the path to your MCP server (e.g. `C:\path\to\server\index.js`).
-3.  Click Connect.
+Built by the MCMe Team. Inspired by modern developer tools and the Model Context Protocol.
