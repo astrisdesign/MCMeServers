@@ -1,52 +1,39 @@
-import { useMCPClient } from '../contexts/MCPClientContext';
-import { Wrench, ChevronRight } from 'lucide-react';
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import React from 'react';
+import { MCPTool } from '../types';
+import { ChevronRight, Wrench } from 'lucide-react';
 
 interface ToolListProps {
-    onSelectTool: (tool: Tool) => void;
-    selectedToolName?: string;
+    tools: MCPTool[];
+    onSelect: (toolId: string) => void;
+    selectedId: string | null;
 }
 
-export function ToolList({ onSelectTool, selectedToolName }: ToolListProps) {
-    const { tools, isConnected } = useMCPClient();
-
+const ToolList: React.FC<ToolListProps> = ({ tools, onSelect, selectedId }) => {
     return (
-        <div className="tool-list flex flex-col h-full">
-            <h3 className="tool-list-header p-3 text-xs font-bold uppercase tracking-wider flex justify-between items-center">
-                <span>Available Tools</span>
-                <span className="tool-count px-6 py-2 rounded text-[10px]">{tools.length}</span>
-            </h3>
-
-            <div className="overflow-y-auto flex-1">
-                {!isConnected ? (
-                    <div className="h-full flex flex-col items-center justify-center p-6 text-center opacity-50">
-                        <div className="text-4xl mb-2">🔌</div>
-                        <p className="text-xs">Connect to a server<br />to list tools</p>
+        <div className="tool-list">
+            {tools.map((tool) => (
+                <button
+                    key={tool.name}
+                    onClick={() => onSelect(tool.name)}
+                    className={`tool-item w-full flex items-start gap-3 text-left ${selectedId === tool.name ? 'active' : ''
+                        }`}
+                >
+                    <div className="tool-icon mt-1">
+                        <Wrench className="w-4 h-4" />
                     </div>
-                ) : tools.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center p-6 text-center opacity-50">
-                        <div className="text-4xl mb-2">📦</div>
-                        <p className="text-xs">No tools found</p>
-                    </div>
-                ) : (
-                    tools.map((tool) => (
-                        <button
-                            key={tool.name}
-                            onClick={() => onSelectTool(tool)}
-                            className={`tool-item w-full text-left p-3 flex items-center gap-2 border-b transition-colors
-                ${selectedToolName === tool.name ? 'active' : ''}
-              `}
-                        >
-                            <Wrench size={14} className="tool-icon shrink-0" />
-                            <div className="overflow-hidden min-w-0 flex-1">
-                                <div className="font-medium text-xs truncate">{tool.name}</div>
-                                <div className="tool-desc text-[10px] truncate opacity-70">{tool.description || "No description"}</div>
+                    <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm truncate">{tool.name}</div>
+                        {tool.description && (
+                            <div className="tool-desc line-clamp-2 mt-1">
+                                {tool.description}
                             </div>
-                            <ChevronRight size={12} className="ml-auto opacity-50 shrink-0" />
-                        </button>
-                    ))
-                )}
-            </div>
+                        )}
+                    </div>
+                    <ChevronRight className={`w-4 h-4 mt-1 transition-transform ${selectedId === tool.name ? 'rotate-90 text-accent-color' : 'text-text-dim'}`} />
+                </button>
+            ))}
         </div>
     );
-}
+};
+
+export default ToolList;

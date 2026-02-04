@@ -1,75 +1,73 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useMCPClient } from '../contexts/MCPClientContext';
-import { Plug, CircleStop, Loader2 } from 'lucide-react';
+import { Server, Link, Unlink, Activity, AlertCircle } from 'lucide-react';
 
-export function ServerConfig() {
-    const { connect, disconnect, isConnected, error } = useMCPClient();
+const ServerConfig: React.FC = () => {
+    const { isConnected, connect, disconnect, error } = useMCPClient();
     const [path, setPath] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
 
     const handleConnect = async () => {
-        if (!path) return;
-        setIsLoading(true);
-        await connect(path);
-        setIsLoading(false);
+        if (path.trim()) {
+            await connect(path);
+        }
     };
 
-    const handleDisconnect = async () => {
-        setIsLoading(true);
-        await disconnect();
-        setIsLoading(false);
-    }
-
-    // Pre-fill for testing/demo (optional)
-    // useEffect(() => setPath('C:\\Github\\ABE2\\ABE2\\library\\tools\\clinerules-manager\\index.js'), []);
-
     return (
-        <div className="server-config p-4 border-b flex flex-col gap-2">
-            <h2 className="section-title text-xs font-bold uppercase tracking-wider mb-2">Server Connection</h2>
+        <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+                <div className="relative flex-1 group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <Server className={`w-4 h-4 transition-colors ${isConnected ? 'text-success-color' : 'text-text-dim group-focus-within:text-accent-color'}`} />
+                    </div>
+                    <input
+                        type="text"
+                        className="input w-full pl-10 h-[42px]"
+                        placeholder="Absolute path to MCP server executable..."
+                        value={path}
+                        onChange={(e) => setPath(e.target.value)}
+                        disabled={isConnected}
+                    />
+                </div>
 
-            <div className="flex gap-2 w-full">
-                <input
-                    type="text"
-                    value={path}
-                    onChange={(e) => setPath(e.target.value)}
-                    placeholder="Path to server executable (e.g. index.js)"
-                    className="input flex-1 font-mono text-xs"
-                    disabled={isConnected}
-                />
+                <div className="flex items-center gap-3 shrink-0">
+                    {!isConnected ? (
+                        <button
+                            onClick={handleConnect}
+                            className="btn btn-primary h-[42px] flex items-center gap-2 min-w-[140px] justify-center"
+                        >
+                            <Link className="w-4 h-4" />
+                            <span>Connect</span>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={disconnect}
+                            className="btn btn-danger h-[42px] flex items-center gap-2 min-w-[140px] justify-center"
+                        >
+                            <Unlink className="w-4 h-4" />
+                            <span>Disconnect</span>
+                        </button>
+                    )}
 
-                {!isConnected ? (
-                    <button
-                        onClick={handleConnect}
-                        disabled={isLoading || !path}
-                        className="btn flex items-center gap-2"
-                    >
-                        {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Plug size={16} />}
-                        Connect
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleDisconnect}
-                        disabled={isLoading}
-                        className="btn btn-danger flex items-center gap-2"
-                    >
-                        <CircleStop size={16} />
-                        Disconnect
-                    </button>
-                )}
+                    {isConnected && (
+                        <div className="flex items-center gap-2 px-4 h-[42px] bg-success-color/10 border border-success-color/20 rounded-xl text-success-color text-xs font-bold animate-in fade-in slide-in-from-right-2 duration-300">
+                            <Activity className="w-3.5 h-3.5 animate-pulse" />
+                            <span>ONLINE</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {error && (
-                <div className="status-message error text-xs mt-1 p-2 rounded">
-                    Error: {error}
-                </div>
-            )}
-
-            {isConnected && !error && (
-                <div className="status-message success text-xs flex items-center gap-1">
-                    <span className="status-indicator success"></span>
-                    Connected to MCP Server
+                <div className="flex items-start gap-3 p-3 bg-error-color/10 border border-error-color/20 rounded-xl text-error-color text-sm animate-in slide-in-from-top-2 duration-200">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <div className="flex-1 font-mono text-xs">
+                        <span className="font-bold uppercase mr-2">[Connection Error]</span>
+                        {error}
+                    </div>
                 </div>
             )}
         </div>
     );
-}
+};
+
+export default ServerConfig;

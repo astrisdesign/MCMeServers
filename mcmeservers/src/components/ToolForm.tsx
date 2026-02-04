@@ -1,95 +1,134 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Form from '@rjsf/core';
 import validator from '@rjsf/validator-ajv8';
+import { MCPTool } from '../types';
 import { useMCPClient } from '../contexts/MCPClientContext';
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { Play, RotateCcw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Play, Copy, Check, Terminal, Info, AlertTriangle, Settings } from 'lucide-react';
 
 interface ToolFormProps {
-    tool: Tool;
+    tool: MCPTool;
 }
 
-export function ToolForm({ tool }: ToolFormProps) {
+const ToolForm: React.FC<ToolFormProps> = ({ tool }) => {
     const { callTool } = useMCPClient();
-    const [formData, setFormData] = useState<any>({});
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
-    const [isExecuting, setIsExecuting] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-    // Using any for data to avoid import issues with RJSF types
-    const handleSubmit = async (data: any) => {
-        const { formData } = data;
-        setIsExecuting(true);
-        setResult(null);
+    const handleSubmit = async ({ formData }: { formData: any }) => {
+        setIsLoading(true);
         setError(null);
+        setResult(null);
         try {
-            const resp = await callTool(tool.name, formData);
-            setResult(resp);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : String(err));
+            const response = await callTool(tool.name, formData);
+            setResult(response);
+        } catch (err: any) {
+            setError(err.message || 'Execution failed');
         } finally {
-            setIsExecuting(false);
+            setIsLoading(false);
         }
     };
 
-    const handleClear = () => {
-        setResult(null);
-        setError(null);
-    }
-
-    // Schema adjustments if needed
-    const schema = tool.inputSchema as any;
+    const copyToClipboard = () => {
+        if (result) {
+            navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
 
     return (
-        <div className="tool-form flex flex-col h-full overflow-hidden">
-            <div className="tool-form-header p-4 border-b">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                    <span className="tool-name">{tool.name}</span>
-                </h2>
-                <p className="tool-description text-sm mt-1">{tool.description}</p>
-            </div>
+        <div className="tool-form">
+            <header className="tool-form-header">
+                <div className="flex items-center gap-3 mb-2">
+                    <Terminal className="w-6 h-6 text-accent-color" />
+                    <h2 className="tool-name">{tool.name}</h2>
+                </div>
+                {tool.description && (
+                    <p className="tool-description">
+                        {tool.description}
+                    </p>
+                )}
+            </header>
 
-            <div className="tool-form-body flex-1 overflow-y-auto p-6">
-                <div className="max-w-3xl mx-auto">
-                    {/* Form Area */}
-                    <div className="form-card p-4 rounded mb-6">
-                        <h3 className="section-title text-xs uppercase tracking-wider font-bold mb-4 border-b pb-2">Arguments</h3>
+            <div className="tool-form-body">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    {/* Form Side */}
+                    <div className="form-card">
+                        <h3 className="section-title mb-6 flex items-center gap-2">
+                            <Settings className="w-4 h-4" />
+                            Parameters
+                        </h3>
                         <Form
-                            schema={schema}
+                            schema={tool.inputSchema as any}
                             validator={validator}
-                            formData={formData}
-                            onChange={(e) => setFormData(e.formData)}
                             onSubmit={handleSubmit}
                             className="rjsf"
-                            liveValidate
                         >
-                            <div className="mt-6 flex gap-3">
-                                <button type="submit" disabled={isExecuting} className="btn-primary btn flex items-center gap-2 px-6 py-2 shadow-sm">
-                                    {isExecuting ? <RotateCcw className="animate-spin" size={16} /> : <Play size={16} fill="currentColor" />}
-                                    Execute Tool
+                            <div className="mt-8">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="btn btn-primary w-full flex items-center justify-center gap-2"
+                                >
+                                    {isLoading ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent" />
+                                    ) : (
+                                        <Play className="w-4 h-4 fill-current" />
+                                    )}
+                                    <span>{isLoading ? 'Executing...' : 'Run Tool'}</span>
                                 </button>
                             </div>
                         </Form>
                     </div>
 
-                    {/* Results Area */}
-                    {(result || error) && (
-                        <div className={`result-card rounded p-4 border ${error ? 'error' : 'success'}`}>
-                            <div className="flex items-center gap-2 mb-2 font-bold text-sm">
-                                {error ? (
-                                    <><AlertTriangle size={16} /> Error</>
-                                ) : (
-                                    <><CheckCircle size={16} /> Execution Result</>
+                    {/* Result Side */}
+                    <div className="flex flex-col gap-6">
+                        {(result || error) ? (
+                            <div className={`result-card form-card ${error ? 'border-error-color/30' : 'border-success-color/30'}`}>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="section-title m-0 flex items-center gap-2">
+                                        {error ? <AlertTriangle className="w-4 h-4 text-error-color" /> : <Terminal className="w-4 h-4 text-success-color" />}
+                                        {error ? 'Error' : 'Output'}
+                                    </h3>
+                                    {result && (
+                                        <button
+                                            onClick={copyToClipboard}
+                                            className="p-2 hover:bg-highlight-bg rounded-lg transition-colors text-text-dim hover:text-accent-color"
+                                            title="Copy result"
+                                        >
+                                            {copied ? <Check className="w-4 h-4 text-success-color" /> : <Copy className="w-4 h-4" />}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {error && (
+                                    <div className="p-4 bg-error-color/10 border border-error-color/20 rounded-lg text-error-color text-sm font-mono mt-2">
+                                        {error}
+                                    </div>
+                                )}
+
+                                {result && (
+                                    <pre className="text-xs font-mono text-text-secondary overflow-x-auto">
+                                        {JSON.stringify(result, null, 2)}
+                                    </pre>
                                 )}
                             </div>
-                            <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap">
-                                {error ? error : JSON.stringify(result, null, 2)}
-                            </pre>
-                            <button onClick={handleClear} className="mt-2 text-[10px] underline opacity-70 hover:opacity-100">Clear Output</button>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="form-card flex flex-col items-center justify-center py-16 text-center opacity-60">
+                                <div className="w-12 h-12 rounded-full bg-highlight-bg flex items-center justify-center mb-4">
+                                    <Info className="w-6 h-6 text-text-dim" />
+                                </div>
+                                <h4 className="text-sm font-bold uppercase tracking-wider text-text-dim">Waiting for Input</h4>
+                                <p className="text-xs max-w-[200px] mt-2">Configure parameters and run the tool to see results here.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
     );
-}
+};
+
+export default ToolForm;
