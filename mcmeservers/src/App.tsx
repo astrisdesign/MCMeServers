@@ -1,50 +1,54 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState } from 'react';
+import { MCPClientProvider } from './contexts/MCPClientContext';
+import { ServerConfig } from './components/ServerConfig';
+import { ToolList } from './components/ToolList';
+import { ToolForm } from './components/ToolForm';
+import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import './App.css';
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+function AppContent() {
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col h-screen overflow-hidden">
+      <div className="shrink-0 bg-[#252526] text-center py-2 text-xs font-bold tracking-widest text-[#555] select-none border-b border-[#333]">
+        MCMeServers
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      {/* Top Bar for Connection */}
+      <ServerConfig />
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar: Tool List */}
+        <div className="w-1/3 min-w-[250px] max-w-[350px] h-full overflow-hidden flex flex-col">
+          <ToolList
+            onSelectTool={setSelectedTool}
+            selectedToolName={selectedTool?.name}
+          />
+        </div>
+
+        {/* Main: Tool Form */}
+        <div className="flex-1 h-full bg-[#1e1e1e] overflow-hidden flex flex-col relative">
+          {selectedTool ? (
+            <ToolForm tool={selectedTool} key={selectedTool.name} />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-[#444] p-8 text-center">
+              <div className="text-4xl mb-4 font-light opacity-20">M C P</div>
+              <p className="text-sm">Select a tool from the sidebar to configure and run it.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <MCPClientProvider>
+      <AppContent />
+    </MCPClientProvider>
   );
 }
 
