@@ -14,9 +14,8 @@
       "allow": [
         {
           "name": "node",
-          "command": "node",
-          "args": true,
-          "sidecar": false
+          "cmd": "node",
+          "args": true
         }
       ]
     }
