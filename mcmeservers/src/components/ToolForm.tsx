@@ -41,19 +41,19 @@ export function ToolForm({ tool }: ToolFormProps) {
     const schema = tool.inputSchema as any;
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-[#6f6f6f] bg-[#1e1e1e]">
+        <div className="tool-form flex flex-col h-full overflow-hidden">
+            <div className="tool-form-header p-4 border-b">
                 <h2 className="text-lg font-bold flex items-center gap-2">
-                    <span className="text-[#007fd4]">{tool.name}</span>
+                    <span className="tool-name">{tool.name}</span>
                 </h2>
-                <p className="text-sm text-[#cccccc] mt-1">{tool.description}</p>
+                <p className="tool-description text-sm mt-1">{tool.description}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="tool-form-body flex-1 overflow-y-auto p-6">
                 <div className="max-w-3xl mx-auto">
                     {/* Form Area */}
-                    <div className="bg-[#252526] p-4 rounded shadow-lg border border-[#3c3c3c] mb-6">
-                        <h3 className="text-xs uppercase tracking-wider font-bold text-[#cccccc] mb-4 border-b border-[#3c3c3c] pb-2">Arguments</h3>
+                    <div className="form-card p-4 rounded mb-6">
+                        <h3 className="section-title text-xs uppercase tracking-wider font-bold mb-4 border-b pb-2">Arguments</h3>
                         <Form
                             schema={schema}
                             validator={validator}
@@ -64,7 +64,7 @@ export function ToolForm({ tool }: ToolFormProps) {
                             liveValidate
                         >
                             <div className="mt-6 flex gap-3">
-                                <button type="submit" disabled={isExecuting} className="btn flex items-center gap-2 px-6 py-2 shadow-sm">
+                                <button type="submit" disabled={isExecuting} className="btn-primary btn flex items-center gap-2 px-6 py-2 shadow-sm">
                                     {isExecuting ? <RotateCcw className="animate-spin" size={16} /> : <Play size={16} fill="currentColor" />}
                                     Execute Tool
                                 </button>
@@ -74,12 +74,12 @@ export function ToolForm({ tool }: ToolFormProps) {
 
                     {/* Results Area */}
                     {(result || error) && (
-                        <div className={`rounded p-4 border ${error ? 'border-[#f48771] bg-[#3a1d1d]' : 'border-[#89d185] bg-[#1e3a1e]'}`}>
+                        <div className={`result-card rounded p-4 border ${error ? 'error' : 'success'}`}>
                             <div className="flex items-center gap-2 mb-2 font-bold text-sm">
                                 {error ? (
-                                    <><AlertTriangle size={16} className="text-[#f48771]" /> Error</>
+                                    <><AlertTriangle size={16} /> Error</>
                                 ) : (
-                                    <><CheckCircle size={16} className="text-[#89d185]" /> Execution Result</>
+                                    <><CheckCircle size={16} /> Execution Result</>
                                 )}
                             </div>
                             <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap">
