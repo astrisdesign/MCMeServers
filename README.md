@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="mcmeservers/src-tauri/icons/MCMeServer_Icon.png" alt="MCMeServers Icon" width="200"/>
+</p>
+
 # MCMeServers
+
+(Pronounced "Em See Me Servers")
 
 A premium human interface for **Model Context Protocol (MCP)** servers, built with **Tauri 2.0**, **React**, and **TypeScript**.
 
-MCMeServers provides a seamless, visually stunning way to interact with your MCP servers. It handles tool discovery, dynamic form generation, and provides a persistent library for your favorite server configurations.
+MCMeServers provides a seamless, visually stunning way to interact with your MCP servers. It handles tool discovery, dynamic form generation, and provides a persistent library for your favorite server configurations. Use the bot tools like a bot!
 
 ## ✨ Features
 
