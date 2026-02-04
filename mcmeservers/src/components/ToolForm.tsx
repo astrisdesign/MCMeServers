@@ -16,7 +16,7 @@ const ToolForm: React.FC<ToolFormProps> = ({ tool }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const handleSubmit = async ({ formData }: { formData: any }) => {
+    const handleSubmit = async ({ formData }: { formData?: any }) => {
         setIsLoading(true);
         setError(null);
         setResult(null);
