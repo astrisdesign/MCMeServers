@@ -311,6 +311,113 @@ body {
   border-color: var(--text-dim);
 }
 
+.btn-accent {
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-border);
+}
+
+.btn-accent:hover {
+  background-color: rgba(34, 211, 238, 0.2);
+  border-color: var(--accent-color);
+}
+
+/* Server Library Dropdown */
+.server-library-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.server-library-trigger:hover {
+  border-color: var(--accent-color);
+  background-color: var(--panel-hover);
+}
+
+.server-library-count {
+  background-color: var(--accent-bg);
+  color: var(--accent-color);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.server-library-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.server-library-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background-color 0.15s ease;
+}
+
+.server-library-item:last-child {
+  border-bottom: none;
+}
+
+.server-library-item:hover {
+  background-color: var(--panel-hover);
+}
+
+.server-library-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.server-library-path {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-library-delete {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+.server-library-item:hover .server-library-delete {
+  opacity: 1;
+}
+
+.server-library-delete:hover {
+  background-color: var(--error-bg);
+  color: var(--error-color);
+}
+
 /* RJSF Overrides */
 .rjsf fieldset {
   border: none;
