@@ -15,9 +15,9 @@ const ServerConfig: React.FC = () => {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="relative flex-1 group">
+                <div className="relative flex-1 group w-full">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Server className={`w-4 h-4 transition-colors ${isConnected ? 'text-success-color' : 'text-text-dim group-focus-within:text-accent-color'}`} />
+                        <Server className={`w-4 h-4 transition-colors ${isConnected ? 'text-success-color' : 'text-text-dim'}`} />
                     </div>
                     <input
                         type="text"
@@ -41,7 +41,7 @@ const ServerConfig: React.FC = () => {
                     ) : (
                         <button
                             onClick={disconnect}
-                            className="btn btn-danger h-[42px] flex items-center gap-2 min-w-[140px] justify-center"
+                            className="btn btn-secondary h-[42px] flex items-center gap-2 min-w-[140px] justify-center"
                         >
                             <Unlink className="w-4 h-4" />
                             <span>Disconnect</span>
@@ -49,7 +49,7 @@ const ServerConfig: React.FC = () => {
                     )}
 
                     {isConnected && (
-                        <div className="flex items-center gap-2 px-4 h-[42px] bg-success-color/10 border border-success-color/20 rounded-xl text-success-color text-xs font-bold animate-in fade-in slide-in-from-right-2 duration-300">
+                        <div className="flex items-center gap-2 px-4 h-[42px] bg-success-bg border border-success-border rounded-xl text-success-color text-xs font-bold">
                             <Activity className="w-3.5 h-3.5 animate-pulse" />
                             <span>ONLINE</span>
                         </div>
@@ -58,7 +58,7 @@ const ServerConfig: React.FC = () => {
             </div>
 
             {error && (
-                <div className="flex items-start gap-3 p-3 bg-error-color/10 border border-error-color/20 rounded-xl text-error-color text-sm animate-in slide-in-from-top-2 duration-200">
+                <div className="flex items-start gap-3 p-3 bg-error-bg border border-error-border rounded-xl text-error-color text-sm">
                     <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                     <div className="flex-1 font-mono text-xs">
                         <span className="font-bold uppercase mr-2">[Connection Error]</span>
